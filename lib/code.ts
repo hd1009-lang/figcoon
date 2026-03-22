@@ -1,9 +1,10 @@
 // This plugin will open a window to prompt the user to enter a number, and
 // it will then create that many rectangles on the screen.
 
+import { extractDesignTokens } from "../../utils/variable";
+
 // import { extractGroupCSS, formatAsCSS } from "./utils/index";
 // import { extractLayoutSummary } from "./utils/layout-summary";
-import { extractDesignTokens } from "./utils/variable";
 
 // This file holds the main code for plugins. Code in this file has access to
 // the *figma document* via the figma global object.

@@ -1,0 +1,1 @@
+export { Header } from "@/shared/ui/Header/Header";

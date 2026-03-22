@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surface */
+  --color-background:                #121221;
+  --color-surface:                   #121221;
+  --color-surface-container-lowest:  #0d0d1c;
+  --color-surface-container-low:     #1a1a2a;
+  --color-surface-container:         #1e1e2e;
+  --color-surface-container-high:    #292839;
+  --color-surface-container-highest: #333344;
+  --color-surface-bright:            #383849;
+  --color-surface-variant:           #333344;
+
+  /* Primary */
+  --color-primary:           #c9bfff;
+  --color-primary-container: #917eff;
+  --color-on-primary:        #2e009c;
+
+  /* Secondary & Tertiary */
+  --color-secondary: #ffb59f;
+  --color-tertiary:  #71d7cd;
+
+  /* On-surface */
+  --color-on-surface:         #e3e0f7;
+  --color-on-surface-variant: #c9c4d8;
+
+  /* Outline */
+  --color-outline:         #928ea1;
+  --color-outline-variant: #484555;
+
+  /* Error & Inverse */
+  --color-error:              #ffb4ab;
+  --color-inverse-surface:    #e3e0f7;
+  --color-inverse-on-surface: #2f2f40;
+
+  /* Font */
+  --font-sans: "Inter", sans-serif;
+  --font-mono: monospace;
+
+  /* Animation */
+  --animate-blink: blink 1s step-start infinite;
+
+  @keyframes blink {
+    0%, 100% { opacity: 0.6; }
+    50%       { opacity: 0; }
+  }
+
+  @keyframes fadeInUp {                                  
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}

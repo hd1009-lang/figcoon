@@ -1,6 +1,6 @@
-<img width="1024" height="559" alt="Image" src="https://github.com/user-attachments/assets/e31a3800-35bb-412a-aca7-b0185251f56b" />
+<p style="text-align: center; width: 100%; font-size: 50px">🦝</p>
 
-# Figcoon
+## Figcoon 🦝
 
 Figcoon is a tool designed to streamline the process of extracting and consolidating design elements from Figma. It helps in converting Figma variables, styles, JSON structures, and CSS properties into a unified and manageable format, making it easier for developers to implement designs consistently across various platforms.
 

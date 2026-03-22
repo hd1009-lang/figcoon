@@ -1,0 +1,1 @@
+export { TabBar } from "@/shared/ui/TabBar/TabBar";

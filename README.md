@@ -1,54 +1,24 @@
-# React + TypeScript + Vite
+<p style="text-align: center; width: 100%; font-size: 50px">🦝</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Figcoon 🦝
 
-Currently, two official plugins are available:
+Figcoon is a tool designed to streamline the process of extracting and consolidating design elements from Figma. It helps in converting Figma variables, styles, JSON structures, and CSS properties into a unified and manageable format, making it easier for developers to implement designs consistently across various platforms.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Variable Consolidation**: Extract and organize design variables from Figma.
+- **Style Management**: Consolidate text, color, and effect styles for consistent application.
+- **JSON Structure Generation**: Convert Figma element properties into structured JSON for easy data transfer.
+- **CSS Export**: Generate clean and organized CSS from Figma designs.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+To get started with Figcoon, follow these steps:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Installation**: This repository currently contains a Figma plugin. To run it locally, clone the repository, navigate to the directory, and run `npm install` to install dependencies. Then, use `npm run build` to compile the TypeScript code.
+   In Figma, go to `Plugins > Development > Import plugin from manifest...` and select the `manifest.json` file from this project.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Usage**: Once installed, open a Figma file. You can then run the plugin from `Plugins > Development > Figcoon`. The plugin UI will appear, allowing you to extract and consolidate design elements.
 
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```

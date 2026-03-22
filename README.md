@@ -1,4 +1,5 @@
-<p style="text-align: center; width: 100%; font-size: 50px">🦝</p>
+<h1 align="center">🦝</h1>
+
 
 ## Figcoon 🦝
 

@@ -17,16 +17,16 @@ type NodeRole =
   | "unknown";
 
 interface BoundingBox {
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
   width: number;
   height: number;
 }
 
 interface FlexLayout {
   direction: "row" | "column";
-  gap: string;
-  padding: {
+  gap?: string;
+  padding?: {
     top: string;
     right: string;
     bottom: string;
@@ -35,7 +35,7 @@ interface FlexLayout {
   alignItems: string;
   justifyContent: string;
   wrap: boolean;
-  overflow: "hidden" | "visible";
+  overflow?: "hidden";
 }
 
 interface VisualStyle {
@@ -418,26 +418,35 @@ async function extractFlexLayout(node: SceneNode): Promise<FlexLayout | undefine
     BASELINE: "baseline",
   };
 
-  const gapVar = await getScalarVar(node, "itemSpacing");
-  const ptVar = await getScalarVar(node, "paddingTop");
-  const prVar = await getScalarVar(node, "paddingRight");
-  const pbVar = await getScalarVar(node, "paddingBottom");
-  const plVar = await getScalarVar(node, "paddingLeft");
-
-  return {
+  const layout: FlexLayout = {
     direction: n.layoutMode === "HORIZONTAL" ? "row" : "column",
-    gap: withVar(String(n.itemSpacing), gapVar),
-    padding: {
-      top: withVar(String(n.paddingTop), ptVar),
-      right: withVar(String(n.paddingRight), prVar),
-      bottom: withVar(String(n.paddingBottom), pbVar),
-      left: withVar(String(n.paddingLeft), plVar),
-    },
     justifyContent: justifyMap[n.primaryAxisAlignItems] ?? n.primaryAxisAlignItems,
     alignItems: alignMap[n.counterAxisAlignItems] ?? n.counterAxisAlignItems,
     wrap: n.layoutWrap === "WRAP",
-    overflow: n.clipsContent ? "hidden" : "visible",
   };
+
+  if (n.itemSpacing > 0) {
+    const gapVar = await getScalarVar(node, "itemSpacing");
+    layout.gap = withVar(String(n.itemSpacing), gapVar);
+  }
+
+  const { paddingTop: pt, paddingRight: pr, paddingBottom: pb, paddingLeft: pl } = n;
+  if (pt || pr || pb || pl) {
+    const ptVar = await getScalarVar(node, "paddingTop");
+    const prVar = await getScalarVar(node, "paddingRight");
+    const pbVar = await getScalarVar(node, "paddingBottom");
+    const plVar = await getScalarVar(node, "paddingLeft");
+    layout.padding = {
+      top: withVar(String(pt), ptVar),
+      right: withVar(String(pr), prVar),
+      bottom: withVar(String(pb), pbVar),
+      left: withVar(String(pl), plVar),
+    };
+  }
+
+  if (n.clipsContent) layout.overflow = "hidden";
+
+  return layout;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -590,12 +599,24 @@ async function extractTextContent(node: TextNode): Promise<TextContent> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function buildLayoutNode(node: SceneNode): Promise<LayoutNode> {
+  const parentLayoutMode =
+    node.parent && "layoutMode" in node.parent
+      ? (node.parent as FrameNode).layoutMode
+      : "NONE";
+  const isAbsolutelyPositioned =
+    parentLayoutMode === "NONE" ||
+    ("layoutPositioning" in node &&
+      (node as SceneNode & { layoutPositioning?: string }).layoutPositioning === "ABSOLUTE");
+
   const box: BoundingBox = {
-    x: Math.round("x" in node ? node.x : 0),
-    y: Math.round("y" in node ? node.y : 0),
     width: Math.round("width" in node ? node.width : 0),
     height: Math.round("height" in node ? node.height : 0),
   };
+
+  if (isAbsolutelyPositioned && "x" in node) {
+    box.x = Math.round(node.x);
+    box.y = Math.round(node.y);
+  }
 
   const role = inferRole(node);
   const style = await extractStyle(node);
@@ -617,9 +638,12 @@ async function buildLayoutNode(node: SceneNode): Promise<LayoutNode> {
   }
 
   if ("children" in node && node.children.length > 0) {
-    result.children = await Promise.all(
-      node.children.map((child) => buildLayoutNode(child))
-    );
+    const visibleChildren = node.children.filter((child) => child.visible !== false);
+    if (visibleChildren.length > 0) {
+      result.children = await Promise.all(
+        visibleChildren.map((child) => buildLayoutNode(child))
+      );
+    }
   }
 
   return result;

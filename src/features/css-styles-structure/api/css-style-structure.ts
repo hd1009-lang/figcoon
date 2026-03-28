@@ -175,7 +175,7 @@ async function getCSSFromNode(node: SceneNode): Promise<{
     if (varName) variableComments[prop] = varName;
   }
 
-  // ── Position & Size ──────────────────────────
+  // ── Size ──────────────────────────────────────
   if ("width" in node) {
     const wVar = await getScalarVar(node, "width");
     const hVar = await getScalarVar(node, "height");
@@ -183,10 +183,20 @@ async function getCSSFromNode(node: SceneNode): Promise<{
     set("height", `${Math.round(node.height)}px`, hVar);
   }
 
-  if ("x" in node) {
+  // ── Position (chỉ cho node không nằm trong auto-layout) ───────
+  const parentLayoutMode =
+    node.parent && "layoutMode" in node.parent
+      ? (node.parent as FrameNode).layoutMode
+      : "NONE";
+  const isAbsolutelyPositioned =
+    parentLayoutMode === "NONE" ||
+    ("layoutPositioning" in node &&
+      (node as SceneNode & { layoutPositioning?: string }).layoutPositioning === "ABSOLUTE");
+
+  if (isAbsolutelyPositioned && "x" in node) {
+    set("position", "absolute");
     set("left", `${Math.round(node.x)}px`);
     set("top", `${Math.round(node.y)}px`);
-    set("position", "absolute");
   }
 
   // ── Opacity ──────────────────────────────────
@@ -368,7 +378,7 @@ async function getCSSFromNode(node: SceneNode): Promise<{
     if (n.counterAxisSizingMode === "AUTO")
       set(n.layoutMode === "HORIZONTAL" ? "height" : "width", "fit-content");
 
-    set("overflow", n.clipsContent ? "hidden" : "visible");
+    if (n.clipsContent) set("overflow", "hidden");
   }
 
   // ── Typography (TEXT node only) ───────────────
@@ -494,9 +504,12 @@ export async function extractGroupCSS(
   };
 
   if ("children" in node && node.children.length > 0) {
-    result.children = await Promise.all(
-      node.children.map((child) => extractGroupCSS(child, depth + 1)),
-    );
+    const visibleChildren = node.children.filter((child) => child.visible !== false);
+    if (visibleChildren.length > 0) {
+      result.children = await Promise.all(
+        visibleChildren.map((child) => extractGroupCSS(child, depth + 1)),
+      );
+    }
   }
 
   return result;

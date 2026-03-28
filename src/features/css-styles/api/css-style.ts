@@ -160,9 +160,7 @@ async function buildNodeCSSLines(node: SceneNode): Promise<string[]> {
   const add = (line: string) => lines.push(line);
   const prop = (p: string, v: string) => `${p}: ${v};`;
 
-  // ── Position ──────────────────────────────────
-  add(prop("position", "absolute"));
-
+  // ── Size ─────────────────────────────────────
   if ("width" in node) {
     const wVar = await getScalarVariableName(node, "width");
     const hVar = await getScalarVariableName(node, "height");
@@ -170,7 +168,18 @@ async function buildNodeCSSLines(node: SceneNode): Promise<string[]> {
     add(withVarComment(prop("height", px(node.height)), hVar));
   }
 
-  if ("x" in node) {
+  // ── Position (chỉ cho node không nằm trong auto-layout) ───────
+  const parentLayoutMode =
+    node.parent && "layoutMode" in node.parent
+      ? (node.parent as FrameNode).layoutMode
+      : "NONE";
+  const isAbsolutelyPositioned =
+    parentLayoutMode === "NONE" ||
+    ("layoutPositioning" in node &&
+      (node as SceneNode & { layoutPositioning?: string }).layoutPositioning === "ABSOLUTE");
+
+  if (isAbsolutelyPositioned && "x" in node) {
+    add(prop("position", "absolute"));
     add(prop("left", px(node.x)));
     add(prop("top", px(node.y)));
   }
@@ -427,18 +436,6 @@ async function buildNodeCSSLines(node: SceneNode): Promise<string[]> {
       }
     }
 
-    if (!("layoutMode" in node)) {
-      const parentHasLayout =
-        node.parent &&
-        "layoutMode" in node.parent &&
-        (node.parent as FrameNode).layoutMode !== "NONE";
-
-      if (!parentHasLayout) {
-        add(prop("display", "flex"));
-        add(prop("align-items", "center"));
-      }
-    }
-
     if (t.textAlignHorizontal) {
       add(prop("text-align", t.textAlignHorizontal.toLowerCase()));
     }
@@ -516,7 +513,7 @@ export async function buildFlatCSS(root: SceneNode): Promise<string> {
 
     if ("children" in node) {
       for (const child of node.children) {
-        await traverse(child);
+        if (child.visible !== false) await traverse(child);
       }
     }
   }
